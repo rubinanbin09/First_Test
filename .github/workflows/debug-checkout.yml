@@ -1,0 +1,38 @@
+name: DEBUG Git Checkout
+
+permissions:
+  contents: read
+
+on: [push]
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Print GitHub context
+        run: |
+          echo "Repository  : $GITHUB_REPOSITORY"
+          echo "Actor       : $GITHUB_ACTOR"
+          echo "Ref         : $GITHUB_REF"
+          echo "SHA         : $GITHUB_SHA"
+          echo "Workflow    : $GITHUB_WORKFLOW"
+          echo "Event name  : $GITHUB_EVENT_NAME"
+
+      - name: List environment variables (filtered)
+        run: |
+          env | grep GITHUB || true
+
+      - name: Test git version
+        run: git --version
+
+      - name: Attempt manual git clone (explicit)
+        run: |
+          git clone https://github.com/${GITHUB_REPOSITORY}.git test-clone
+
+      - name: Checkout using actions/checkout
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
